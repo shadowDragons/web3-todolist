@@ -34,11 +34,7 @@ const App = () => {
 
   useEffect(() => {
     getList()
-  }, [selectStatus]);
-
-  useEffect(() => {
-    getList();
-  }, [todoContract]);
+  }, [selectStatus, todoContract]);
 
   async function getList() {
     if (todoContract) {
@@ -95,7 +91,6 @@ const App = () => {
     } else {
       console.log("check fail");
     }
-
     getList();
   } 
 
@@ -109,7 +104,6 @@ const App = () => {
     } else {
       console.log("del fail");
     }
-    
     getList();
   }
 
