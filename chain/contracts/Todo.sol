@@ -17,16 +17,16 @@ contract Todo {
     mapping(address => uint256[]) private todoIDList;
 
 
-    event Add(address sender, uint256 id, bytes32 content);
-    event Checked(address sender, Status status);
-    event Del(address sender, Status status);
+    event Add(address sender, uint256 id);
+    event Checked(address sender, uint256 id);
+    event Del(address sender, uint256 id);
 
     function add(bytes32 _content) public {
         incrID = incrID + 1;
         todoList[incrID] = TodoItem(incrID, Status.undone, _content, msg.sender);
         todoIDList[msg.sender].push(incrID);
         
-        emit Add(msg.sender, incrID, _content);
+        emit Add(msg.sender, incrID);
     }
 
     function del(uint256 _id) public {
@@ -34,7 +34,7 @@ contract Todo {
         require(todoList[_id].owner == msg.sender || todoList[_id].status == Status.done && todoList[_id].status == Status.undone, "Data does not exist");
         todoList[_id].status = Status.del;
 
-        emit Del(msg.sender,  todoList[_id].status);
+        emit Del(msg.sender, _id);
     }
 
     function checked(uint256 _id) public {
@@ -42,10 +42,10 @@ contract Todo {
         require(todoList[_id].status == Status.undone, "Data does not exist");
         todoList[_id].status = Status.done;
 
-        emit Checked(msg.sender, todoList[_id].status);
+        emit Checked(msg.sender, _id);
     }
 
-    function list6(Status _status) public view returns(uint256[] memory ids , bytes32[] memory contents, Status[] memory status) {
+    function list(Status _status) public view returns(uint256[] memory ids , bytes32[] memory contents, Status[] memory status) {
         uint256 count = todoIDList[msg.sender].length;
         ids = new uint[](count);
         contents = new bytes32[](count);

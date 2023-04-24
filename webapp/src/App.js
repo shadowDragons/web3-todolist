@@ -38,7 +38,7 @@ const App = () => {
 
   async function getList() {
     if (todoContract) {
-      const rs = await todoContract.list6(selectStatus);
+      const rs = await todoContract.list(selectStatus);
       console.log(rs)
       let list = [];
       rs[0].forEach(function(item, key) {
