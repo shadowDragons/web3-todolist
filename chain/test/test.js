@@ -14,11 +14,11 @@ describe("Todo", function () {
     });
 
     it("should add a todo", async function () {
-        const tx = await todo.add("Test todo");
+        const tx = await todo.add(ethers.utils.formatBytes32String("Test todo"));
         const rc = await tx.wait();
         const event = rc.events.find(event => event.event === 'Add');
         const [sender, id, content] = event.args;
-        expect(content).to.equal("Test todo");
+        expect(content).to.equal(ethers.utils.formatBytes32String("Test todo"));
     });
 
 

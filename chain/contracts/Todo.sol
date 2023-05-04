@@ -17,16 +17,16 @@ contract Todo {
     mapping(address => uint256[]) private todoIDList;
 
 
-    event Add(address sender, uint256 id);
-    event Checked(address sender, uint256 id);
-    event Del(address sender, uint256 id);
+    event Add(address sender, uint256 id, bytes32 content);
+    event Checked(address sender, uint256 id, Status status);
+    event Del(address sender, uint256 id, Status status);
 
     function add(bytes32 _content) public {
         incrID = incrID + 1;
         todoList[incrID] = TodoItem(incrID, Status.undone, _content, msg.sender);
         todoIDList[msg.sender].push(incrID);
         
-        emit Add(msg.sender, incrID);
+        emit Add(msg.sender, incrID, _content);
     }
 
     function del(uint256 _id) public {
@@ -34,7 +34,7 @@ contract Todo {
         require(todoList[_id].owner == msg.sender || todoList[_id].status == Status.done && todoList[_id].status == Status.undone, "Data does not exist");
         todoList[_id].status = Status.del;
 
-        emit Del(msg.sender, _id);
+        emit Del(msg.sender, _id, todoList[_id].status);
     }
 
     function checked(uint256 _id) public {
@@ -42,7 +42,7 @@ contract Todo {
         require(todoList[_id].status == Status.undone, "Data does not exist");
         todoList[_id].status = Status.done;
 
-        emit Checked(msg.sender, _id);
+        emit Checked(msg.sender, _id, todoList[_id].status);
     }
 
     function list(Status _status) public view returns(uint256[] memory ids , bytes32[] memory contents, Status[] memory status) {
