@@ -1,25 +1,36 @@
 import './App.css';
-import { ethers } from "ethers"
+import { ethers, Contract, BrowserProvider, JsonRpcSigner } from "ethers";
 import { ExclamationCircleFilled, CheckCircleFilled } from '@ant-design/icons';
-import { Space, Input, Layout, Menu,  Col, Row, Button, List, Checkbox, Avatar, Typography } from 'antd';
+import { Space, Input, Layout, Menu, Button, List, Checkbox, Avatar, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import todojson from './contract-build/contracts/Todo.sol/Todo.json';
+import type { MenuProps } from 'antd';
 const { Text, Paragraph } = Typography;
 
 const { Header, Content, Sider } = Layout;
 
-const App = () => {
+type dataItem = {
+  id: number;
+  content: string;
+  status: number;
+}
 
-  const [account, setAccount] = useState();
-  const [signer, setSigner] = useState();
-  const [provider, setProvider] = useState();
-  const [todoContract, setTodoContract] = useState();
-  const [selectStatus, setSelectStatus] = useState(0);
+type eventObj = {
+  eventName: string;
+}
 
-  const [newTodoText, setNewTodoText] = useState();
-  const [data, setData] = useState();
+const App : React.FC = () => {
+
+  const [account, setAccount] = useState<string | null>();
+  const [signer, setSigner] = useState<JsonRpcSigner | null>();
+  const [provider, setProvider] = useState<BrowserProvider | null>();
+  const [todoContract, setTodoContract] = useState<Contract | null>();
+  const [selectStatus, setSelectStatus] = useState<number | null>(0);
+
+  const [newTodoText, setNewTodoText] = useState<string>("");
+  const [data, setData] = useState<dataItem[]>();
 
   useEffect(() => {
     async function initChain() {
@@ -39,9 +50,8 @@ const App = () => {
   async function getList() {
     if (todoContract) {
       const rs = await todoContract.list(selectStatus);
-      console.log(rs)
-      let list = [];
-      rs[0].forEach(function(item, key) {
+      let list : dataItem[] = [];
+      rs[0].forEach(function(item :number, key:number) {
         list.push({
           "id": item, 
           "content": ethers.decodeBytes32String(rs[1][key]), 
@@ -70,9 +80,10 @@ const App = () => {
 
   async function addTodo()
   {
-    const tx = await todoContract.add(ethers.encodeBytes32String(newTodoText));
+    const tx = await todoContract?.add(ethers.encodeBytes32String(newTodoText));
     const rc = await tx.wait();
-    const event = rc.logs.find(event => event.eventName === 'Add');
+    const event = rc.logs.find((obj:eventObj) => {return obj.eventName === 'Add';})
+
     if (event) {
       console.log("add success");
     } else {
@@ -81,11 +92,12 @@ const App = () => {
     getList();
   } 
 
-  async function checkTodo(id)
+  async function checkTodo(id:number)
   {
-    const tx = await todoContract.checked(id);
+    const tx = await todoContract?.checked(id);
     const rc = await tx.wait();
-    const event = rc.logs.find(event => event.eventName === 'Checked');
+    const event = rc.logs.find((obj:eventObj) => {return obj.eventName === 'Checked';})
+
     if (event) {
       console.log("check success");
     } else {
@@ -94,11 +106,12 @@ const App = () => {
     getList();
   } 
 
-  async function delTodo(id)
+  async function delTodo(id:number)
   {
-    const tx = await todoContract.del(id);
+    const tx = await todoContract?.del(id);
     const rc = await tx.wait();
-    const event = rc.logs.find(event => event.eventName === 'Del');
+    const event = rc.logs.find((obj:eventObj) => {return obj.eventName === 'Del';})
+
     if (event) {
       console.log("del success");
     } else {
@@ -107,9 +120,9 @@ const App = () => {
     getList();
   }
 
-  function changeSelectStatus(e)
+  const changeSelectStatus: MenuProps['onClick'] = (e) => 
   {
-    if (e.key == 'UnChecked') {
+    if (e.key === 'UnChecked') {
       setSelectStatus(0)
     } else {
       setSelectStatus(1)
@@ -188,7 +201,7 @@ const App = () => {
                   dataSource={data}
                   renderItem={(item) => (
                     <List.Item
-                      actions={item.status != 2 ? 
+                      actions={item.status !== 2 ? 
                         [<a key="list-loadmore-edit" onClick={() => {delTodo(item.id)}}>del</a>] 
                         : 
                         []

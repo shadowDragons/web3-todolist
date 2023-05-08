@@ -7,6 +7,6 @@ module.exports = {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "../webapp/src/contract-build/"
+    artifacts: "../webapp-ts/src/contract-build/"
   }
 };
